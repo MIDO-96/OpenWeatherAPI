@@ -1,7 +1,6 @@
 from datetime import datetime
 from tkinter import *
 from tkinter import messagebox
-
 import PIL.Image
 import requests
 from PIL import ImageTk
