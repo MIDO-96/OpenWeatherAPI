@@ -1,22 +1,34 @@
 from datetime import datetime
 from tkinter import *
 from tkinter import messagebox
+
 import PIL.Image
 import requests
 from PIL import ImageTk
 
+'''
+API_KEY
+ Should be probably added as an env variables instead.
+ but for the sake of smoothness it is included as its
+'''
 api_key = "4ea29b17431a3e15b9c3ac321d7c231c"
+
+# api initial url
 initial_url = "http://api.openweathermap.org/data/2.5/weather?appid=" + api_key
 
+# Tkinter setup code
 window = Tk()
 window.title('CTK CASE, OpenWeatherApi connection')
 window.geometry('525x450')
 window.resizable(width=False, height=False)
 window.configure(bg='white')
 
+# Get current date and time
 now = datetime.now()
-dt_string = now.strftime("%d-%m-%Y %H:%M:%S")
+now_string = now.strftime("%d-%m-%Y %H:%M:%S")
 
+
+# Since the API returns temperature in Kelvin
 
 def kelvin_to_celsius(temp):
     return temp - 273
@@ -26,26 +38,17 @@ def kelvin_to_fah(temp):
     return (temp - 273) * 9 / 5 + 32
 
 
-def fetch_data(city):
-    url = initial_url + "&q=" + city
-    response = requests.get(url)
-    data = {}
-    if response.status_code == 200:
-        print('Success \n')
-        data = response.json()
-    elif response.status_code == 400:
-        print('bad request, please check for correct info')
-    elif response.status_code == 401:
-        print('unauthorized access, please give correct credentials')
-    else:
-        print('something went wrong, please try again')
-    return data
-
-
+'''
+Function to communicate with owm api by sending a query including
+desired city name. The function checks for the status of the fetched
+response and at success it parses the obtained data and returns them 
+in tuple format 
+'''
 def fetch_info(city):
-    url = initial_url + "&q=" + city
+    url = initial_url + "&q=" + city # final url request
     response = requests.get(url)
-    if response.status_code == 200:
+    if response.status_code == 200: # check for positive response
+        # data parsin
         data = response.json()
         main = data['main']
         temp = main['temp']
@@ -60,18 +63,21 @@ def fetch_info(city):
         max_temp = main['temp_max']
         parsed_data = (
             temp, feels_like, humidity, pressure, wind_speed, description, icon, country_code, min_temp, max_temp)
-        return parsed_data
+        return parsed_data # the needed object
     else:
-        messagebox.showerror('bad request', 'Invalid city name')
+        messagebox.showerror('bad request', 'Invalid city name') # throw error at bad request (in our case restricted
+        # to bad city name )
 
         return None
 
 
+# Function used to populate the GUI with the relevant info
 def populate_window():
     city_name = city_text.get()
     weather_info = fetch_info(city_name)
     city_name_text['text'] = '{}, {}'.format(city_name, weather_info[7])
 
+    # check for metric system used
     if drop_down_variable.get() == 'Metric':
         temp_text['text'] = ' {:.0f}°C'.format(kelvin_to_celsius(weather_info[0]))
         multi_temp_text['text'] = '{:.0f}° / {:.0f}° Feels like: {:.0f}°'.format(kelvin_to_celsius(weather_info[8]),
@@ -88,15 +94,19 @@ def populate_window():
     wind_speed_text['text'] = 'wind speed: {} km/h'.format(weather_info[4])
     description_text['text'] = 'the weather today is : {}'.format(weather_info[5])
     load = PIL.Image.open('icons/{}.png'.format(weather_info[6]))
-    date_text['text'] = dt_string
+    date_text['text'] = now_string
 
+    # show correct icon
     render = ImageTk.PhotoImage(load)
-
     img = Label(window, image=render, bg='white')
     img.image = render
     img.place(x=115, y=190)
 
 
+
+
+
+# Tkinter components and widgets code
 welcome_text = Label(window,
                      text='Welcome to python weather app \n Enter the city name below to get weather information',
                      bg='white')
@@ -141,10 +151,26 @@ OPTIONS = [
 drop_down_variable = StringVar(window)
 drop_down_variable.set(OPTIONS[0])  # default value
 
-drop_down = OptionMenu(window, drop_down_variable, *OPTIONS)
-drop_down.config(width=5, bg='white')
-drop_down.place(x=55, y=43)
+drop_down_menu = OptionMenu(window, drop_down_variable, *OPTIONS)
+drop_down_menu.config(width=5, bg='white')
+drop_down_menu.place(x=55, y=43)
 
 window.mainloop()
 
-print(fetch_info('london'))
+# Commented Code
+'''
+def fetch_data(city):
+    url = initial_url + "&q=" + city
+    response = requests.get(url)
+    data = {}
+    if response.status_code == 200:
+        print('Success \n')
+        data = response.json()
+    elif response.status_code == 400:
+        print('bad request, please check for correct info')
+    elif response.status_code == 401:
+        print('unauthorized access, please give correct credentials')
+    else:
+        print('something went wrong, please try again')
+    return data
+'''
