@@ -8,8 +8,8 @@ from PIL import ImageTk
 
 '''
 API_KEY
- Should be probably added as an env variables instead.
- but for the sake of smoothness it is included as its
+ Should be probably added as an env variable instead.
+ but for the sake of smoothness it is included as it is.
 '''
 api_key = "4ea29b17431a3e15b9c3ac321d7c231c"
 
@@ -93,14 +93,14 @@ def populate_window():
     pressure_text['text'] = 'Pressure: {} bar'.format(weather_info[3])
     wind_speed_text['text'] = 'wind speed: {} km/h'.format(weather_info[4])
     description_text['text'] = 'the weather today is : {}'.format(weather_info[5])
-    load = PIL.Image.open('icons/{}.png'.format(weather_info[6]))
+    image = PIL.Image.open('icons/{}.png'.format(weather_info[6]))
     date_text['text'] = now_string
 
     # show correct icon
-    render = ImageTk.PhotoImage(load)
-    img = Label(window, image=render, bg='white')
-    img.image = render
-    img.place(x=115, y=190)
+    render = ImageTk.PhotoImage(image)
+    weather_icon = Label(window, image=render, bg='white')
+    weather_icon.image = render
+    weather_icon.place(x=115, y=190)
 
 
 
@@ -143,10 +143,7 @@ pressure_text.pack(pady=5)
 description_text = Label(window, text='', bg='white')
 description_text.pack(pady=5)
 
-OPTIONS = [
-    'Metric',
-    'Imperial'
-]  # etc
+OPTIONS = ['Metric','Imperial']
 
 drop_down_variable = StringVar(window)
 drop_down_variable.set(OPTIONS[0])  # default value
